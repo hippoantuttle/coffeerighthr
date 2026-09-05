@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import ArchiveButton from "@/app/ArchiveButton";
 import { HttpError, jsonRequest, requestJson } from "@/lib/http";
+import { getStoredReviewerIdentity } from "@/lib/reviewer/identity";
 import { reviewerSetupUrl } from "@/lib/reviewer/navigation";
 import { useUnsavedChanges } from "@/lib/hooks/useUnsavedChanges";
 
@@ -80,13 +81,12 @@ export default function InterviewsClient() {
     }
   }
   useEffect(() => {
-    const reviewerId = localStorage.getItem("coffeeright.reviewerId"),
-      reviewerName = localStorage.getItem("coffeeright.reviewerName");
-    if (!reviewerId || !reviewerName) {
+    const storedIdentity = getStoredReviewerIdentity();
+    if (!storedIdentity) {
       location.href = reviewerSetupUrl();
       return;
     }
-    setIdentity({ reviewerId, reviewerName });
+    setIdentity(storedIdentity);
     void load();
   }, []);
   const visible = rows.filter(

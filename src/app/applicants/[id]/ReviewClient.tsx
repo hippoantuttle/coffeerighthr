@@ -1,5 +1,6 @@
 "use client";
 import { useUnsavedChanges } from "@/lib/hooks/useUnsavedChanges";
+import { getStoredReviewerIdentity } from "@/lib/reviewer/identity";
 import { reviewerSetupUrl } from "@/lib/reviewer/navigation";
 import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 type Criterion = {
@@ -95,15 +96,14 @@ export default function ReviewClient({
     if(initialize)setReady(true);
   }, [applicant.id]);
   useEffect(() => {
-    const id = localStorage.getItem("coffeeright.reviewerId");
-    const name = localStorage.getItem("coffeeright.reviewerName");
-    if (!id || !name) {
+    const identity = getStoredReviewerIdentity();
+    if (!identity) {
       location.href = reviewerSetupUrl();
       return;
     }
-    setReviewerId(id);
-    setReviewerName(name);
-    load(id).catch((e) => setMessage(e.message));
+    setReviewerId(identity.reviewerId);
+    setReviewerName(identity.reviewerName);
+    load(identity.reviewerId).catch((e) => setMessage(e.message));
   }, [load]);
   const complete = useMemo(
     () =>

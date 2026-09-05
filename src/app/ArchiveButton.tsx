@@ -2,6 +2,7 @@
 import { useRef, useState } from "react";
 import { downloadFile } from "@/lib/archive/download";
 import { jsonRequest } from "@/lib/http";
+import { getStoredReviewerIdentity } from "@/lib/reviewer/identity";
 
 export default function ArchiveButton({
   type,
@@ -20,6 +21,7 @@ export default function ArchiveButton({
     setBusy(true);
     setMessage("");
     try {
+      const identity = getStoredReviewerIdentity();
       await downloadFile(
         type === "document_final"
           ? "/api/archive/document-final"
@@ -28,8 +30,8 @@ export default function ArchiveButton({
         jsonRequest("POST", {
           includePersonalData,
           recruitmentId: process.env.NEXT_PUBLIC_RECRUITMENT_ID,
-          reviewerId: localStorage.getItem("coffeeright.reviewerId"),
-          reviewerName: localStorage.getItem("coffeeright.reviewerName"),
+          reviewerId: identity?.reviewerId ?? null,
+          reviewerName: identity?.reviewerName ?? null,
         }),
       );
       setOpen(false);

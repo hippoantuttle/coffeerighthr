@@ -15,7 +15,7 @@ afterAll(async () => {
 });
 async function review(scores: Record<string, number>, status = "submitted") {
   const r = await db.query<{ result: { status: string } }>(
-    "select save_review($1,'document','qa-reviewer','QA 평가자',$2,'코멘트',$3::jsonb) result",
+    "select save_review($1,'document','QA 평가자','QA 평가자',$2,'코멘트',$3::jsonb) result",
     [applicantId, status, JSON.stringify(scores)],
   );
   return r.rows[0].result;

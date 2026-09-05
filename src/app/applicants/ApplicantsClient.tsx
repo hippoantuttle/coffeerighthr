@@ -1,5 +1,6 @@
 "use client";
 import ArchiveButton from "@/app/ArchiveButton";
+import { getStoredReviewerIdentity } from "@/lib/reviewer/identity";
 import { reviewerSetupUrl } from "@/lib/reviewer/navigation";
 import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 
@@ -49,15 +50,14 @@ export default function ApplicantsClient() {
     }
   }, [recruitmentId]);
   useEffect(() => {
-    const n = localStorage.getItem("coffeeright.reviewerName");
-    const id = localStorage.getItem("coffeeright.reviewerId");
-    if (!n || !id) {
+    const identity = getStoredReviewerIdentity();
+    if (!identity) {
       location.href = reviewerSetupUrl();
       return;
     }
-    setReviewer(n);
-    setReviewerId(id);
-    load(id);
+    setReviewer(identity.reviewerName);
+    setReviewerId(identity.reviewerId);
+    load(identity.reviewerId);
   }, [load]);
   const rows = useMemo(() => {
     const result = rows0.filter((a) =>

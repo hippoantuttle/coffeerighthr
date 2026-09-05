@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { HttpError, jsonRequest, requestJson } from "@/lib/http";
+import { getStoredReviewerIdentity } from "@/lib/reviewer/identity";
 import { reviewerSetupUrl } from "@/lib/reviewer/navigation";
 import { useUnsavedChanges } from "@/lib/hooks/useUnsavedChanges";
 
@@ -81,16 +82,15 @@ function InterviewForm({ applicantId }: { applicantId: string }) {
 
   useEffect(() => {
     mounted.current = true;
-    const reviewerId = localStorage.getItem("coffeeright.reviewerId"),
-      reviewerName = localStorage.getItem("coffeeright.reviewerName");
-    if (!reviewerId || !reviewerName) {
+    const storedIdentity = getStoredReviewerIdentity();
+    if (!storedIdentity) {
       location.href = reviewerSetupUrl();
       return;
     }
-    setIdentity({ reviewerId, reviewerName });
+    setIdentity(storedIdentity);
     let current = true;
     requestJson<Data>(
-      `/api/interviews/${applicantId}?reviewerId=${encodeURIComponent(reviewerId)}`,
+      `/api/interviews/${applicantId}?reviewerId=${encodeURIComponent(storedIdentity.reviewerId)}`,
     )
       .then((body) => {
         if (!current) return;

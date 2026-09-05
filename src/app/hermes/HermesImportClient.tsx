@@ -2,6 +2,7 @@
 import { useState, useRef } from "react";
 import Papa from "papaparse";
 import { downloadFile } from "@/lib/archive/download";
+import { getStoredReviewerIdentity } from "@/lib/reviewer/identity";
 
 type Preview = {
   valid: Array<{
@@ -49,8 +50,7 @@ export default function HermesImportClient() {
     lock.current = true;
     setBusy(true);
     try {
-      const reviewerId = localStorage.getItem("coffeeright.reviewerId");
-      const reviewerName = localStorage.getItem("coffeeright.reviewerName");
+      const identity = getStoredReviewerIdentity();
       const response = await fetch("/api/import/hermes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -58,8 +58,8 @@ export default function HermesImportClient() {
           action,
           rows,
           recruitmentId,
-          reviewerId,
-          reviewerName,
+          reviewerId: identity?.reviewerId ?? null,
+          reviewerName: identity?.reviewerName ?? null,
         }),
       });
       const data = await response.json();
