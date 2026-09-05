@@ -7,7 +7,7 @@ create table recruitments (
   current_stage text not null default 'document',
   document_target_count int,
   final_target_count int,
-  minimum_document_reviews int not null default 3,
+  minimum_document_reviews int not null default 12,
   minimum_interview_reviews int not null default 2,
   created_at timestamptz not null default now()
 );

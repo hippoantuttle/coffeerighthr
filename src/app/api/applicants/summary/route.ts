@@ -63,7 +63,7 @@ export async function GET(req: Request) {
           )
           .throwOnError()
       : { data: [] };
-    const minimum = Number(recruitment?.minimum_document_reviews ?? 3);
+    const minimum = Number(recruitment?.minimum_document_reviews ?? 12);
     const rows = (apps ?? []).map((a) => {
       const own = (reviews ?? []).find(
         (r) => r.applicant_id === a.id && r.reviewer_id === reviewerId,
