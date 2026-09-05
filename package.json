@@ -8,18 +8,23 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "qa:db": "node scripts/qa-server.mjs",
+    "qa:app": "node scripts/qa-app.mjs",
+    "qa:flow": "node scripts/qa-flow.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.112.4",
+    "jszip": "3.10.1",
     "next": "16.3.3",
     "papaparse": "5.7.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "zod": "4.5.4",
-    "jszip": "3.10.1"
+    "zod": "4.5.4"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.8",
+    "@testing-library/react": "16.3.3",
     "@types/node": "26.4.0",
     "@types/papaparse": "5.5.2",
     "@types/react": "19.2.18",
@@ -27,6 +32,7 @@
     "autoprefixer": "10.5.4",
     "eslint": "9.39.5",
     "eslint-config-next": "16.3.3",
+    "jsdom": "29.1.1",
     "postcss": "8.5.26",
     "tailwindcss": "4.3.3",
     "typescript": "6.0.3",

@@ -6,6 +6,6 @@ describe("archive csv", () => {
     expect(csvEscape('a,"b"\nc')).toBe('"a,""b""\nc"');
   });
   it("keeps a stable header order", () => {
-    expect(toCsv(["a","b"],[{a:1,b:2}])).toBe("a,b\n1,2");
+    expect(toCsv(["a", "b"], [{ a: 1, b: 2 }])).toBe("a,b\n1,2");
   });
 });

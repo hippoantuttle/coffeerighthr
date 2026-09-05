@@ -1,7 +1,16 @@
-import { weightedReviewAverages, type CriterionWeight, type ScoreRow } from "./aggregate";
+import {
+  weightedReviewAverages,
+  type CriterionWeight,
+  type ScoreRow,
+} from "./aggregate";
 
-export function interviewAggregate(scores: ScoreRow[], criteria: CriterionWeight[]) {
-  const averages = weightedReviewAverages(scores, criteria).map(row => row.average);
+export function interviewAggregate(
+  scores: ScoreRow[],
+  criteria: CriterionWeight[],
+) {
+  const averages = weightedReviewAverages(scores, criteria).map(
+    (row) => row.average,
+  );
   if (!averages.length) return null;
   const min = Math.min(...averages);
   const max = Math.max(...averages);

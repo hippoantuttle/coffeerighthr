@@ -1,10 +1,21 @@
 export type CriterionWeight = { id: string; weight: number };
-export type ScoreRow = { review_id: string; criterion_id: string; score: number };
+export type ScoreRow = {
+  review_id: string;
+  criterion_id: string;
+  score: number;
+};
 
-export function weightedReviewAverages(scores: ScoreRow[], criteria: CriterionWeight[]) {
-  const weights = new Map(criteria.map(c => [c.id, Number(c.weight)]));
+export function weightedReviewAverages(
+  scores: ScoreRow[],
+  criteria: CriterionWeight[],
+) {
+  const weights = new Map(criteria.map((c) => [c.id, Number(c.weight)]));
   const grouped = new Map<string, ScoreRow[]>();
-  for (const score of scores) grouped.set(score.review_id, [...(grouped.get(score.review_id) ?? []), score]);
+  for (const score of scores)
+    grouped.set(score.review_id, [
+      ...(grouped.get(score.review_id) ?? []),
+      score,
+    ]);
   return [...grouped.entries()].map(([reviewId, rows]) => {
     let weighted = 0;
     let totalWeight = 0;

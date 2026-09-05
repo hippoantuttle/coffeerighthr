@@ -1,5 +1,7 @@
 # COFFEERIGHT Recruiting Review
 
+최근 구현 및 로컬 검증 결과는 [로컬 QA 보고서](docs/LOCAL_QA_REPORT.md)를 참고하세요. 배포 전 `20260905041400_workflow_completion.sql` 적용이 필요합니다. 로그인 없이 링크를 공유하는 운영 방식을 유지합니다.
+
 연세대학교 커피동아리 COFFEERIGHT의 서류·면접 평가 운영 웹앱입니다.
 
 ## 데이터 흐름

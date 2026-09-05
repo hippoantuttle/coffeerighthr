@@ -11,18 +11,10 @@ export interface InterviewAggregate {
 }
 
 export type DocumentStatus =
-  | "pending"
-  | "reviewing"
-  | "hold"
-  | "interview"
-  | "rejected";
+  "pending" | "reviewing" | "hold" | "interview" | "rejected";
 
 export type FinalStatus =
-  | "pending"
-  | "accepted"
-  | "waitlisted"
-  | "rejected"
-  | "hold";
+  "pending" | "accepted" | "waitlisted" | "rejected" | "hold";
 
 export interface ReviewerIdentity {
   reviewerId: string;

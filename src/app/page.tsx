@@ -1,1 +1,26 @@
-export default function Home(){return <main className="narrow"><p className="eyebrow">COFFEERIGHT · Recruiting Review</p><h1>6기 리크루팅</h1><p className="lead">Google Form은 접수, 이 웹앱은 서류·면접 평가, Google Drive는 장기 기록 보존에 사용합니다.</p><div className="card home-actions"><a className="button-link" href="/reviewer">평가자 설정</a><a className="quiet-link" href="/applicants">서류평가 →</a><a className="quiet-link" href="/interviews">면접 운영 →</a><a className="quiet-link" href="/import">지원자 CSV →</a></div></main>}
+export default function Home() {
+  return (
+    <main className="narrow">
+      <p className="eyebrow">COFFEERIGHT · Recruiting Review</p>
+      <h1>6기 리크루팅</h1>
+      <p className="lead">
+        Google Form은 접수, 이 웹앱은 서류·면접 평가, Google Drive는 장기 기록
+        보존에 사용합니다.
+      </p>
+      <div className="card home-actions">
+        <a className="button-link" href="/reviewer">
+          평가자 설정
+        </a>
+        <a className="quiet-link" href="/applicants">
+          서류평가 →
+        </a>
+        <a className="quiet-link" href="/interviews">
+          면접 운영 →
+        </a>
+        <a className="quiet-link" href="/import">
+          지원자 CSV →
+        </a>
+      </div>
+    </main>
+  );
+}
