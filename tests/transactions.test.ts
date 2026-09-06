@@ -92,6 +92,15 @@ describe("real PostgreSQL workflow transactions", () => {
     expect(questions.rows[0].question).toContain("Ⅰ. 기본");
     expect(questions.rows[7].question).toContain("Ⅵ. 마무리");
   });
+  it("uses the activity participation label for the second interview criterion", async () => {
+    const criterion = await db.query<{ title: string; weight: number }>(
+      "select title, weight::integer as weight from evaluation_criteria where recruitment_id=$1 and stage='interview' and sort_order=2",
+      [recruitmentId],
+    );
+    expect(criterion.rows).toEqual([
+      { title: "활동 참여 의지", weight: 30 },
+    ]);
+  });
   it("detects note conflicts without overwriting the latest note", async () => {
     const q = (
       await db.query<{ id: string }>(
