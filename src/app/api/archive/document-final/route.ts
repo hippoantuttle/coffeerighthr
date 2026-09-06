@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import JSZip from "jszip";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { toCsv } from "@/lib/archive/csv";
+import { chunk } from "@/lib/arrays/chunk";
 
 export async function POST(req: Request) {
   try {
@@ -72,14 +73,19 @@ export async function POST(req: Request) {
     if (answerError) throw answerError;
     if (reviewError) throw reviewError;
 
-    const reviewIds = (reviews ?? []).map((r) => r.id);
-    const { data: scores, error: scoreError } = reviewIds.length
-      ? await s
+    const scoreResponses = await Promise.all(
+      chunk(
+        (reviews ?? []).map((r) => r.id),
+        100,
+      ).map((reviewIds) =>
+        s
           .from("document_review_scores")
           .select("id,review_id,criterion_id,score")
           .in("review_id", reviewIds)
-      : { data: [], error: null };
-    if (scoreError) throw scoreError;
+          .throwOnError(),
+      ),
+    );
+    const scores = scoreResponses.flatMap((response) => response.data ?? []);
 
     const applicantHeaders = [
       "applicant_code",
@@ -178,7 +184,7 @@ export async function POST(req: Request) {
       "\ufeff" +
         toCsv(
           ["applicant_code", "reviewer_name", "criterion", "score"],
-          (scores ?? []).map((sc) => {
+          scores.map((sc) => {
             const review = (reviews ?? []).find((r) => r.id === sc.review_id);
             return {
               applicant_code: applicantCodeById.get(

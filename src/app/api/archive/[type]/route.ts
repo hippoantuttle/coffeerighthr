@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import JSZip from "jszip";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { toCsv } from "@/lib/archive/csv";
+import { chunk } from "@/lib/arrays/chunk";
 
 type Context = { params: Promise<{ type: string }> };
 export async function POST(req: Request, { params }: Context) {
@@ -97,14 +98,19 @@ export async function POST(req: Request, { params }: Context) {
             .throwOnError()
         : Promise.resolve({ data: [] }),
     ]);
-    const reviewIds = (reviews ?? []).map((r) => r.id);
-    const { data: scores } = reviewIds.length
-      ? await s
+    const scoreResponses = await Promise.all(
+      chunk(
+        (reviews ?? []).map((r) => r.id),
+        100,
+      ).map((reviewIds) =>
+        s
           .from("interview_review_scores")
           .select("*")
           .in("review_id", reviewIds)
-          .throwOnError()
-      : { data: [] };
+          .throwOnError(),
+      ),
+    );
+    const scores = scoreResponses.flatMap((response) => response.data ?? []);
     const zip = new JSZip();
     const files: string[] = [];
     const add = (
@@ -211,7 +217,7 @@ export async function POST(req: Request, { params }: Context) {
     add(
       "interview_review_scores.csv",
       ["applicant_code", "reviewer_name", "criterion", "score"],
-      (scores ?? []).map((sc) => {
+      scores.map((sc) => {
         const review = reviewById.get(sc.review_id);
         return {
           applicant_code: codeById.get(review?.applicant_id),
@@ -287,14 +293,21 @@ export async function POST(req: Request, { params }: Context) {
             .in("applicant_id", applicantIds)
             .throwOnError()
         : { data: [] };
-      const documentReviewIds = (documentReviews ?? []).map((r) => r.id);
-      const { data: documentScores } = documentReviewIds.length
-        ? await s
+      const documentScoreResponses = await Promise.all(
+        chunk(
+          (documentReviews ?? []).map((r) => r.id),
+          100,
+        ).map((reviewIds) =>
+          s
             .from("document_review_scores")
             .select("*")
-            .in("review_id", documentReviewIds)
-            .throwOnError()
-        : { data: [] };
+            .in("review_id", reviewIds)
+            .throwOnError(),
+        ),
+      );
+      const documentScores = documentScoreResponses.flatMap(
+        (response) => response.data ?? [],
+      );
       add(
         "document_reviews.csv",
         [
@@ -316,7 +329,7 @@ export async function POST(req: Request, { params }: Context) {
       add(
         "document_review_scores.csv",
         ["applicant_code", "reviewer_name", "criterion", "score"],
-        (documentScores ?? []).map((sc) => {
+        documentScores.map((sc) => {
           const review = documentReviewById.get(sc.review_id);
           return {
             applicant_code: codeById.get(review?.applicant_id),
