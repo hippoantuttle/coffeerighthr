@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { interviewAggregate } from "@/lib/reviews/interview";
 import { apiError } from "@/lib/server/error";
+import { chunk } from "@/lib/arrays/chunk";
 export async function GET(req: Request) {
   try {
     const url = new URL(req.url),
@@ -53,16 +54,19 @@ export async function GET(req: Request) {
     const submitted = (reviews ?? []).filter(
       (r) => r.status === "submitted" && revealed.has(r.applicant_id),
     );
-    const { data: scores } = submitted.length
-      ? await s
+    const scoreResponses = await Promise.all(
+      chunk(
+        submitted.map((r) => r.id),
+        100,
+      ).map((reviewIds) =>
+        s
           .from("document_review_scores")
           .select("review_id,criterion_id,score")
-          .in(
-            "review_id",
-            submitted.map((r) => r.id),
-          )
-          .throwOnError()
-      : { data: [] };
+          .in("review_id", reviewIds)
+          .throwOnError(),
+      ),
+    );
+    const scores = scoreResponses.flatMap((response) => response.data ?? []);
     const minimum = Number(recruitment?.minimum_document_reviews ?? 12);
     const rows = (apps ?? []).map((a) => {
       const own = (reviews ?? []).find(
@@ -74,7 +78,7 @@ export async function GET(req: Request) {
       const reviewIds = new Set(appReviews.map((r) => r.id));
       const aggregate = revealed.has(a.id)
         ? interviewAggregate(
-            (scores ?? []).filter((sc) => reviewIds.has(sc.review_id)),
+            scores.filter((sc) => reviewIds.has(sc.review_id)),
             (criteria ?? []).map((c) => ({
               id: c.id,
               weight: Number(c.weight),
