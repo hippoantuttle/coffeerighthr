@@ -80,6 +80,18 @@ describe("real PostgreSQL workflow transactions", () => {
     );
     expect(count.rows[0].count).toBe(3);
   });
+  it("provides the eight common interview questions in order", async () => {
+    const questions = await db.query<{ question: string; sort_order: number }>(
+      "select question, sort_order from interview_questions where recruitment_id=$1 and is_active order by sort_order",
+      [recruitmentId],
+    );
+    expect(questions.rows).toHaveLength(8);
+    expect(questions.rows.map(({ sort_order }) => sort_order)).toEqual([
+      1, 2, 3, 4, 5, 6, 7, 8,
+    ]);
+    expect(questions.rows[0].question).toContain("Ⅰ. 기본");
+    expect(questions.rows[7].question).toContain("Ⅵ. 마무리");
+  });
   it("detects note conflicts without overwriting the latest note", async () => {
     const q = (
       await db.query<{ id: string }>(

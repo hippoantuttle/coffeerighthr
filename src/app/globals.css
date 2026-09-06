@@ -554,6 +554,10 @@ a {
   border-bottom: 1px solid #e5e3da;
   padding: 18px 0;
 }
+.question-prompt {
+  display: block;
+  line-height: 1.65;
+}
 .question-note .textarea {
   min-height: 96px;
   margin: 10px 0 8px;

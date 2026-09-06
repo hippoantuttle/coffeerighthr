@@ -313,9 +313,11 @@ function InterviewForm({ applicantId }: { applicantId: string }) {
           {data.questions.map((q) => (
             <article className="question-note" key={q.id}>
               <label htmlFor={`note-${q.id}`}>
-                <strong>{q.question}</strong>
+                <strong className="question-prompt prewrap">{q.question}</strong>
               </label>
-              {q.description && <p className="hint">{q.description}</p>}
+              {q.description && (
+                <p className="hint prewrap">{q.description}</p>
+              )}
               <textarea
                 id={`note-${q.id}`}
                 className="textarea"
