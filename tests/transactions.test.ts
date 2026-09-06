@@ -55,6 +55,31 @@ describe("real PostgreSQL workflow transactions", () => {
     await expect(review({ [foreign]: 5 })).rejects.toThrow();
     await expect(review({ [documentCriterion]: 2.5 })).rejects.toThrow();
   });
+  it("allows three interview evaluators, blocks a fourth, and lets existing evaluators edit", async () => {
+    const criteria = await db.query<{ id: string }>(
+      "select id from evaluation_criteria where stage='interview' and is_active",
+    );
+    const scores = (score: number) =>
+      Object.fromEntries(criteria.rows.map(({ id }) => [id, score]));
+    const saveInterview = (reviewer: string, score: number) =>
+      db.query(
+        "select save_review($1,'interview',$2,$2,'submitted','코멘트',$3::jsonb)",
+        [applicantId, reviewer, JSON.stringify(scores(score))],
+      );
+
+    await saveInterview("면접관 1", 3);
+    await saveInterview("면접관 2", 4);
+    await saveInterview("면접관 3", 5);
+    await expect(saveInterview("면접관 4", 4)).rejects.toThrow(
+      "면접 평가는 지원자별 최대 3명까지 참여할 수 있습니다.",
+    );
+    await expect(saveInterview("면접관 1", 5)).resolves.toBeDefined();
+    const count = await db.query<{ count: number }>(
+      "select count(*)::integer count from interview_reviews where applicant_id=$1",
+      [applicantId],
+    );
+    expect(count.rows[0].count).toBe(3);
+  });
   it("detects note conflicts without overwriting the latest note", async () => {
     const q = (
       await db.query<{ id: string }>(

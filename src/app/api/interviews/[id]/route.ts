@@ -100,6 +100,8 @@ export async function GET(req: Request, { params }: Context) {
     );
     const mine =
       (reviews ?? []).find((r) => r.reviewer_id === reviewerId) ?? null;
+    const reviewerLimit = 3;
+    const reviewerCount = (reviews ?? []).length;
     const myScores = mine
       ? (scores ?? []).filter((row) => row.review_id === mine.id)
       : [];
@@ -115,6 +117,9 @@ export async function GET(req: Request, { params }: Context) {
       reviews: submitted,
       myReview: mine,
       myScores,
+      reviewerLimit,
+      reviewerCount,
+      canReview: mine !== null || reviewerCount < reviewerLimit,
     });
   } catch (error) {
     return NextResponse.json(

@@ -29,6 +29,9 @@ const payload = {
   reviews: [],
   myReview: null,
   myScores: [],
+  reviewerLimit: 3,
+  reviewerCount: 0,
+  canReview: true,
 };
 const response = (body: unknown, status = 200) =>
   Promise.resolve(
@@ -46,6 +49,28 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 describe("interview form preserves unsaved input", () => {
+  it("blocks a fourth new evaluator when three people already participate", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() =>
+        response({
+          ...payload,
+          reviewerCount: 3,
+          canReview: false,
+        }),
+      ),
+    );
+    render(<InterviewClient applicantId="a1" />);
+    await screen.findByText("이 지원자는 이미 평가자 3명이 참여했습니다.");
+    expect(
+      (screen.getByRole("button", { name: "탐구 5점" }) as HTMLButtonElement)
+        .disabled,
+    ).toBe(true);
+    expect(
+      (screen.getByRole("button", { name: "평가 제출" }) as HTMLButtonElement)
+        .disabled,
+    ).toBe(true);
+  });
   it("keeps scores, comment, other notes and text typed during a slow save", async () => {
     let resolveSave: (r: Response) => void = () => {};
     vi.stubGlobal(

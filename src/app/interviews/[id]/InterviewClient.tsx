@@ -45,6 +45,9 @@ type Data = {
   reviews: { id: string; reviewer_name: string; comment: string | null }[];
   myReview: Review | null;
   myScores: { criterion_id: string; score: number }[];
+  reviewerLimit: number;
+  reviewerCount: number;
+  canReview: boolean;
 };
 type Form = { scores: Record<string, number>; comment: string };
 const same = (a: unknown, b: unknown) =>
@@ -226,7 +229,13 @@ function InterviewForm({ applicantId }: { applicantId: string }) {
         if (mounted.current)
           setData((v) =>
             v
-              ? { ...v, aggregate: latest.aggregate, reviews: latest.reviews }
+              ? {
+                  ...v,
+                  aggregate: latest.aggregate,
+                  reviews: latest.reviews,
+                  reviewerCount: latest.reviewerCount,
+                  canReview: latest.canReview,
+                }
               : v,
           );
       } catch {
@@ -385,6 +394,14 @@ function InterviewForm({ applicantId }: { applicantId: string }) {
           <div className="sticky">
             <h2>면접관별 평가</h2>
             <p className="muted">평가자 · {identity.reviewerName}</p>
+            <p className="muted small">
+              평가 참여 {data.reviewerCount}/{data.reviewerLimit}명
+            </p>
+            {!data.canReview && (
+              <p role="alert" className="badge warn">
+                이 지원자는 이미 평가자 3명이 참여했습니다.
+              </p>
+            )}
             {!data.criteria.length && (
               <p role="alert">면접 평가 항목이 설정되지 않았습니다.</p>
             )}
@@ -398,6 +415,7 @@ function InterviewForm({ applicantId }: { applicantId: string }) {
                   {[1, 2, 3, 4, 5].map((n) => (
                     <button
                       type="button"
+                      disabled={!data.canReview}
                       aria-label={`${c.title} ${n}점`}
                       aria-pressed={form.scores[c.id] === n}
                       className={
@@ -423,6 +441,7 @@ function InterviewForm({ applicantId }: { applicantId: string }) {
             <textarea
               id="interview-comment"
               className="textarea"
+              disabled={!data.canReview}
               value={form.comment}
               onChange={(e) =>
                 setForm((v) => ({ ...v, comment: e.target.value }))
@@ -431,7 +450,7 @@ function InterviewForm({ applicantId }: { applicantId: string }) {
             <div className="review-actions">
               {data.myReview?.status !== "submitted" && (
                 <button
-                  disabled={busy.review}
+                  disabled={busy.review || !data.canReview}
                   className="secondary"
                   onClick={() => saveReview("draft")}
                 >
@@ -439,7 +458,9 @@ function InterviewForm({ applicantId }: { applicantId: string }) {
                 </button>
               )}
               <button
-                disabled={busy.review || !data.criteria.length}
+                disabled={
+                  busy.review || !data.criteria.length || !data.canReview
+                }
                 onClick={() => saveReview("submitted")}
               >
                 {busy.review
